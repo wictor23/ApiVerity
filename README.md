@@ -17,6 +17,8 @@ Testes escrito no padrão nativo do Cypress: `describe` / `it` do Mocha com asse
 - Node.js 20 (arquivo `.nvmrc` incluso)
 - npm 9 ou superior
 
+## Execução manual na Pipeline
+<img src="docs/imagens/action.png" alt="Run workflow Cypress" width="1000"/>
 ## Instalação
 
 ```bash
@@ -24,9 +26,6 @@ git clone <url-do-repositorio>
 cd serverest-api-tests-mocha
 npm install
 ```
-
-## Execução manual na Pipeline
-<img src="docs/imagens/action.png" alt="Run workflow Cypress" width="1000"/>
 
 ## Execução Local
 ```bash
@@ -58,8 +57,15 @@ cypress
     └── services          camada de acesso aos endpoints
 .github/workflows         pipeline de CI
 ```
+## Relatórios Pipeline
+A cada execução da pipeline o relatório é gerado automaticamente.
 
-## Relatórios
+- **Publicado no GitHub Pages**, com o resultado da última execução da `main`:
+  https://wictor23.github.io/ApiVerity/
+
+<img src="docs/imagens/relatorio.gif" alt="Run workflow Relatorio" width="1000"/>
+
+## Relatórios LOCAL
 
 Depois de `npx cypress run`, os artefatos ficam em `cypress/reports`:
 
