@@ -1,0 +1,23 @@
+{
+  "name": "serverest-api-tests-mocha",
+  "version": "1.0.0",
+  "description": "Suite de testes automatizados da API ServeRest (Cypress + Mocha)",
+  "private": true,
+  "scripts": {
+    "pretest": "rimraf cypress/reports",
+    "test": "cypress run",
+    "test:cadastro": "cypress run --spec cypress/e2e/usuarios_cadastro.cy.js",
+    "test:consulta": "cypress run --spec cypress/e2e/usuarios_consulta.cy.js",
+    "test:atualizacao": "cypress run --spec cypress/e2e/usuarios_atualizacao.cy.js",
+    "test:exclusao": "cypress run --spec cypress/e2e/usuarios_exclusao.cy.js",
+    "test:auth": "cypress run --spec cypress/e2e/autenticacao.cy.js",
+    "abrir": "cypress open --e2e --browser electron",
+    "test:grep": "cypress run --env grep"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.3.0",
+    "cypress": "^13.15.2",
+    "cypress-mochawesome-reporter": "^3.8.2",
+    "rimraf": "^5.0.10"
+  }
+}

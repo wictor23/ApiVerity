@@ -1,0 +1,57 @@
+name: Testes de API - ServeRest (Mocha)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 11 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  regressao:
+    name: Regressao da API
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout do repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Cache do binario do Cypress
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Executar suite
+        env:
+          API_BASE_URL: https://serverest.dev
+        run: npx cypress run
+
+      - name: Publicar relatorio como artefato
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-testes-api-mocha
+          path: cypress/reports
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Resumo da execucao
+        if: always()
+        run: |
+          echo "### Relatorio Mochawesome" >> $GITHUB_STEP_SUMMARY
+          echo "Artefato: relatorio-testes-api-mocha (cypress/reports/index.html)" >> $GITHUB_STEP_SUMMARY
