@@ -7,12 +7,19 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   regressao:
     name: Regressao da API
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout do repositorio
@@ -24,14 +31,15 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Instalar dependencias
-        run: npm ci
-
       - name: Cache do binario do Cypress
         uses: actions/cache@v4
         with:
           path: ~/.cache/Cypress
           key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: cypress-${{ runner.os }}-
+
+      - name: Instalar dependencias
+        run: npm ci
 
       - name: Executar suite
         env:
@@ -39,7 +47,7 @@ jobs:
         run: npx cypress run
 
       - name: Publicar relatorio como artefato
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: relatorio-testes-api-mocha
@@ -47,9 +55,18 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
-      - name: Publicar no Pages
-        if: always()
+      - name: Publicar relatorio no Pages
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: cypress/reports
+          keep_files: false
+
+      - name: Resumo da execucao
+        if: ${{ !cancelled() }}
+        run: |
+          echo "### Relatorio da execucao" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Artefato: relatorio-testes-api-mocha" >> $GITHUB_STEP_SUMMARY
+          echo "Pages: https://wictor23.github.io/ApiVerity/" >> $GITHUB_STEP_SUMMARY
