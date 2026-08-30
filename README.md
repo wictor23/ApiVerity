@@ -1,6 +1,6 @@
-# Testes automatizados da API ServeRest (Mocha)
+# Testes automatizados da API ServeRest VERITY
 
-Mesma cobertura da suíte em Gherkin, escrita no padrão nativo do Cypress: `describe` / `it` do Mocha com asserções Chai, sem camada BDD.
+Testes escrito no padrão nativo do Cypress: `describe` / `it` do Mocha com asserções Chai, sem camada BDD.
 
 ## Stack
 
@@ -25,30 +25,21 @@ cd serverest-api-tests-mocha
 npm install
 ```
 
-## Execução
+## Execução manual na Pipeline
+<img src="docs/imagens/action.png" alt="Run workflow Cypress" width="1000"/>
 
+## Execução Local
 ```bash
-npm test                  # suíte completa em modo headless
-npm run abrir             # Test Runner do Cypress
-npm run test:cadastro
-npm run test:consulta
-npm run test:atualizacao
-npm run test:exclusao
-npm run test:auth
+npx cypress run
+npx cypress open
 ```
+![installing-cli e1693232](https://user-images.githubusercontent.com/1271364/31740846-7bf607f0-b420-11e7-855f-41c996040d31.gif)
 
-Filtrando por nome do teste, recurso do próprio Mocha:
+## Filtrando por nome do teste, recurso do próprio Mocha:
 
 ```bash
 npx cypress run --spec cypress/e2e/usuarios_cadastro.cy.js --env grep="e-mail já utilizado"
 ```
-
-Apontando para outro ambiente:
-
-```bash
-API_BASE_URL=https://minha-instancia-serverest.dev npm test
-```
-
 ## Estrutura
 
 ```
@@ -60,28 +51,17 @@ cypress
 │   ├── usuarios_consulta.cy.js
 │   └── usuarios_exclusao.cy.js
 └── support
-    ├── commands.js       cy.api com throttle e cy.cadastrarUsuario
-    ├── e2e.js            registro do reporter e limpeza automática
-    ├── limpeza.js        controle síncrono dos registros criados no teste
+    ├── commands.js       
+    ├── e2e.js            
+    ├── limpeza.js        
     ├── factories         geração de usuários com Faker
     └── services          camada de acesso aos endpoints
 .github/workflows         pipeline de CI
 ```
 
-Cada arquivo de spec corresponde a um verbo do recurso, e o `describe` recebe o nome do endpoint (`POST /usuarios`, `PUT /usuarios/{_id}`). Isso faz o relatório do Mochawesome sair agrupado por rota, sem precisar de tag ou configuração extra.
+## Relatórios
 
-## Diferenças em relação à suíte com Cucumber
-
-| Aspecto | Cucumber | Mocha |
-| --- | --- | --- |
-| Especificação | `.feature` em português, legível por quem não programa | `describe`/`it` em JavaScript |
-| Reuso | Passos compartilhados entre features, com risco de ambiguidade | Funções e comandos customizados, resolução direta |
-| Casos parametrizados | Esquema do Cenário com tabela de Exemplos | `forEach` sobre um array de casos |
-| Estado entre passos | Objeto de contexto e `cy.then` para adiar asserções | Encadeamento de `.then`, sem estado global |
-| Camadas até o teste | feature, step, service | spec, service |
-| Relatório | multiple-cucumber-html-reporter | cypress-mochawesome-reporter |
-
-Na prática o Mocha é mais direto: as asserções ficam dentro do `.then` da requisição, então não existe o problema de fila do Cypress que obriga o Cucumber a embrulhar cada verificação em `cy.then`. Em compensação, perde-se a documentação viva em linguagem de negócio.
+Depois de `npx cypress run`, os artefatos ficam em `cypress/reports`:
 
 ## Observações sobre a API
 
@@ -114,18 +94,3 @@ Exclusão com confirmação de que o registro deixou de existir e aviso em ident
 ### POST /login — 7 testes
 
 Token com credenciais válidas, senha incorreta, três combinações de campos obrigatórios, rota protegida sem token e rota protegida com token válido.
-
-## Relatórios
-
-Depois de `npm test`, os artefatos ficam em `cypress/reports`:
-
-- `index.html` — relatório navegável com gráficos, duração e detalhe por teste
-- `.jsons/` — saída bruta do Mochawesome, útil para integrações
-
-O relatório é gerado ao final da execução, inclusive quando há falhas, e o workflow publica a pasta inteira como artefato `relatorio-testes-api-mocha`.
-
-## Pontos de atenção conhecidos
-
-- A base do ServeRest é pública e compartilhada. As asserções de listagem validam consistência estrutural em vez de quantidades fixas.
-- `retries` habilitado com uma tentativa em modo headless, para absorver instabilidade da instância pública sem mascarar falha real.
-- O `PUT` com identificador inexistente cria um novo registro. Está coberto como caso positivo por ser o contrato documentado da API.

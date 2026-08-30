@@ -7,9 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  schedule:
-    - cron: '0 11 * * 1-5'
-  workflow_dispatch:
 
 jobs:
   regressao:
@@ -49,9 +46,3 @@ jobs:
           path: cypress/reports
           retention-days: 30
           if-no-files-found: warn
-
-      - name: Resumo da execucao
-        if: always()
-        run: |
-          echo "### Relatorio Mochawesome" >> $GITHUB_STEP_SUMMARY
-          echo "Artefato: relatorio-testes-api-mocha (cypress/reports/index.html)" >> $GITHUB_STEP_SUMMARY
